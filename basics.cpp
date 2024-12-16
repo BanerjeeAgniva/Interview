@@ -61,15 +61,49 @@ vector<int> frequencyCount(vector<int>& arr) {
   }
   return arr;
 }
-
+// The frequency of an element is the number of times it occurs in an array.
+// You are given an integer array nums and an integer k. In one operation, 
+//you can choose an index of nums and increment the element at that index by 1.
+// Return the maximum possible frequency of an element after performing at most k operations.
+// Example 1:
+// Input: nums = [1,2,4], k = 5
+// Output: 3
+// Explanation: Increment the first element three times and the second element two times to make nums = [4,4,4].
+// 4 has a frequency of 3.
+int maxFrequency(vector<int>& nums, int k) {
+    // 1 1 2 ---> k=2 
+    // 2 2 2 
+    // 1 1 2  ---> currsum=4
+    // required --> 6 ---> which is nums[rightpointer] * windowlength 
+    // with currsum + k we can manage required sum  
+    // ---------------------------------------------------------------------------------------
+    // LOGIC --->  required = nums[right] * windowlen <= currsum + k   ----> This is ACCEPTED 
+    // ---------------------------------------------------------------------------------------
+    sort(nums.begin(),nums.end());
+    int left=0,right=0;
+    long long currsum=0;
+    int ans=1;
+    while(right<nums.size()){
+        currsum+=(long long)nums[right];
+        while(((right-left+1) * (long long)nums[right]) > (currsum+k)  && left<=right){
+            currsum-=nums[left] ;
+            left++ ;
+        }
+        ans=max(ans,right-left+1);
+        right++ ;
+    } 
+    return ans;
+}
 int main()
 {
     //cout<<sumdivisors(5)<<"\n";
     //cout<<gcd(20,15)<<"\n";
-    vector<int> arr={2,3,3,2,5}; // expected output --> {0,2,2,0,1}
-    arr=frequencyCount(arr);
-    for(int i=0;i<arr.size();i++){
-        cout<<arr[i]<<" ";
-    }
-    cout<<"\n";
+    // vector<int> arr={2,3,3,2,5}; // expected output --> {0,2,2,0,1}
+    // arr=frequencyCount(arr);
+    // for(int i=0;i<arr.size();i++){
+    //     cout<<arr[i]<<" ";
+    // }
+    // cout<<"\n";
+    // vector<int> arr={4,1,2,2,1};
+    // cout<<maxFrequency(arr,2)<<endl;  // expected --> 4 2 2 2 2  ---> answer 4 
 }
