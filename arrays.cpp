@@ -92,6 +92,24 @@ int subarraySum(vector<int> &nums, int k) {
   }
   return ans;
 }
+//-------- MAXIMUM PRODUCT SUBARRAY ----//
+/*
+[-1,-2,-9,-6] ---> 54
+[-3,0,1,-2]  ---> 1
+[-2,3,-4]  ---> 3
+*/
+int maxProduct(vector<int> &nums) {
+  int currmaxsub = 1;
+  int currminsub = 1;
+  int ans = INT_MIN;
+  for (int i = 0; i < nums.size(); i++) {
+    int temp = currminsub;
+    currminsub = min({nums[i], temp * nums[i], currmaxsub * nums[i]});
+    currmaxsub = max({nums[i], temp * nums[i], currmaxsub * nums[i]});
+    ans = max(ans, currmaxsub);
+  }
+  return ans;
+}
 //------
 // Sort colours
 // Input: nums = [2,0,2,1,1,0]
