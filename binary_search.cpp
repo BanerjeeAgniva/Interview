@@ -2,7 +2,7 @@
 #include <vector>
 using namespace std;
 // Function to find the index of the largest element <= k
-int findFloor(vector<int> &arr, int k) {
+int findFloor(vector<int> &arr, int k) { // lowerbound
   int left = 0;
   int right = arr.size() - 1;
   if (arr[0] > k)
@@ -36,7 +36,7 @@ ceil(x) will give the last occurence of x in the array
 Number of occurences of x = ceil(x) - floor(x)  [Assuming x is there ]
 */
 // Function to find the index of the smallest element >= k
-int findCeilIndex(const vector<int> &arr, int k) {
+int findCeilIndex(const vector<int> &arr, int k) { // upperbound
   int low = 0, high = arr.size() - 1;
   int ceilIndex = -1;
   while (low <= high) {
