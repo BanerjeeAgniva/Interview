@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stack>
+#include <string>
 using namespace std;
 double myPow(double x, int n) {
   if (n < 0)
@@ -560,84 +561,123 @@ bool exist(vector<vector<char>> &board, string word) {
     }
   }
   return false;
+}
 
-  /*
-  If you have placed a queen in row r then i wont place another queen in the
-  same row For every row iterate through all the columns : If there is already a
-  queen in the colum then continue If there is already a queen in the positive
-  diagonal (bottom left to top right) denoted by same R+C value
-        ------>  (3,0) (2,1) (1,2) (0,3)  then you cant put a queen there
-      If there is already a queen in the negative diagonal (top left to bottom
-  right) denoted by same R-C value
-        ------>  (0,0) (1,1) (2,2) (3,3)  then you cant put a queen there
-     IF YOU CAN PUT A QUEEN ---> Mark that spot call backtrack for the next row
-     so that the sub problem becomes the board (r-1 * c) remaining board
-    After returning unmark the spot that you had marked Q so that other answers
-  can be recorded
+/*
+If you have placed a queen in row r then i wont place another queen in the
+same row For every row iterate through all the columns : If there is already a
+queen in the colum then continue If there is already a queen in the positive
+diagonal (bottom left to top right) denoted by same R+C value
+      ------>  (3,0) (2,1) (1,2) (0,3)  then you cant put a queen there
+    If there is already a queen in the negative diagonal (top left to bottom
+right) denoted by same R-C value
+      ------>  (0,0) (1,1) (2,2) (3,3)  then you cant put a queen there
+   IF YOU CAN PUT A QUEEN ---> Mark that spot call backtrack for the next row
+   so that the sub problem becomes the board (r-1 * c) remaining board
+  After returning unmark the spot that you had marked Q so that other answers
+can be recorded
 
-  Space optimize --> O(N) by  :::::::>>>>
-          vector<int> cols(n, 0);
-          vector<int> posdiag(2 * n - 1, 0);
-          vector<int> negdiag(2 * n - 1, 0);
+Space optimize --> O(N) by  :::::::>>>>
+        vector<int> cols(n, 0);
+        vector<int> posdiag(2 * n - 1, 0);
+        vector<int> negdiag(2 * n - 1, 0);
 
-  TIme Complexity ---> O(N!)
-  The time complexity of the backtracking solution for the N-Queens problem is
-  approximately \(O(N!)\) in the worst case. This is because the first queen has
-  \(N\) options for placement, the second queen has
-  \(N-1\) options after placing the first queen, the third queen has \(N-2\)
-  options after placing the first two queens, and so forth. This factorial
-  growth represents the upper bound of the time complexity. Although the actual
-  complexity is often less than \(N!\) due to the pruning of invalid positions
-  as the algorithm progresses, the factorial bound still provides a good
-  estimate of the worst-case scenario.
-   */
+TIme Complexity ---> O(N!)
+The time complexity of the backtracking solution for the N-Queens problem is
+approximately \(O(N!)\) in the worst case. This is because the first queen has
+\(N\) options for placement, the second queen has
+\(N-1\) options after placing the first queen, the third queen has \(N-2\)
+options after placing the first two queens, and so forth. This factorial
+growth represents the upper bound of the time complexity. Although the actual
+complexity is often less than \(N!\) due to the pruning of invalid positions
+as the algorithm progresses, the factorial bound still provides a good
+estimate of the worst-case scenario.
+ */
 
-  vector<vector<string>> solveNQueens(int n) {
-    vector<vector<string>> ans;
-    string s(n, '.');
-    vector<string> board(n);
-    for (int i = 0; i < n; i++)
-      board[i] = s;
-    vector<int> leftRow(n, 0);
-    vector<int> uppDiag(2 * n - 1, 0);
-    vector<int> lowDiag(2 * n - 1, 0);
-    util(0, n, ans, leftRow, uppDiag, lowDiag, board);
-    return ans;
+vector<vector<string>> solveNQueens(int n) {
+  vector<vector<string>> ans;
+  string s(n, '.');
+  vector<string> board(n);
+  for (int i = 0; i < n; i++)
+    board[i] = s;
+  vector<int> leftRow(n, 0);
+  vector<int> uppDiag(2 * n - 1, 0);
+  vector<int> lowDiag(2 * n - 1, 0);
+  util(0, n, ans, leftRow, uppDiag, lowDiag, board);
+  return ans;
+}
+void util(int col, int n, vector<vector<string>> &ans, vector<int> &leftRow,
+          vector<int> &uppDiag, vector<int> &lowDiag, vector<string> board) {
+  if (col == n) {
+    ans.push_back(board);
+    return;
   }
-  void util(int col, int n, vector<vector<string>> &ans, vector<int> &leftRow,
-            vector<int> &uppDiag, vector<int> &lowDiag, vector<string> board) {
-    if (col == n) {
-      ans.push_back(board);
-      return;
-    }
-    // check each row for the particular column
-    for (int row = 0; row < n; row++) {
-      if (leftRow[row] == 0 && uppDiag[row + col] == 0 &&
-          lowDiag[n - 1 + row - col] == 0) {
-        leftRow[row] = 1;
-        uppDiag[row + col] = 1;
-        lowDiag[n - 1 + row - col] = 1;
-        board[row][col] = 'Q';
-        util(col + 1, n, ans, leftRow, uppDiag, lowDiag, board);
-        board[row][col] = '.';
-        leftRow[row] = 0;
-        uppDiag[row + col] = 0;
-        lowDiag[n - 1 + row - col] = 0;
-      }
-    }
-  }
-
-  int main() {
-    stack<int> st;
-    st.push(41);
-    st.push(8);
-    st.push(7);
-    st.push(6);
-    st.push(5);
-    sortStack(st);
-    while (!st.empty()) {
-      cout << st.top() << " ";
-      st.pop();
+  // check each row for the particular column
+  for (int row = 0; row < n; row++) {
+    if (leftRow[row] == 0 && uppDiag[row + col] == 0 &&
+        lowDiag[n - 1 + row - col] == 0) {
+      leftRow[row] = 1;
+      uppDiag[row + col] = 1;
+      lowDiag[n - 1 + row - col] = 1;
+      board[row][col] = 'Q';
+      util(col + 1, n, ans, leftRow, uppDiag, lowDiag, board);
+      board[row][col] = '.';
+      leftRow[row] = 0;
+      uppDiag[row + col] = 0;
+      lowDiag[n - 1 + row - col] = 0;
     }
   }
-  // 11 2 32 3 41
+}
+/*
+rat maze --> 1 is unblocked
+Input: mat[][] =
+[
+[1, 0, 0, 0],
+[1, 1, 0, 1],
+[1, 1, 0, 0],
+[0, 1, 1, 1]]
+Output: ["DDRDRR", "DRDDRR"]
+Explanation: The rat can reach the destination at (3, 3) from (0, 0) by two
+paths - DRDDRR and DDRDRR, when printed in sorted order we get DDRDRR DRDDRR.
+*/
+int xx[4] = {1, 0, -1, 0};
+int yy[4] = {0, 1, 0, -1};
+string dir = "DRUL";
+void backtrack(int i, int j, vector<string> &ans, vector<vector<int>> &grid,
+               string curr) {
+  // if(i<0||j<0||i>=grid.size()||j>=grid.size()) return;
+  if (grid[i][j] != 1)
+    return;
+  if (i == grid.size() - 1 && j == grid.size() - 1) {
+    ans.push_back(curr);
+    return;
+  }
+  for (int r = 0; r < 4; r++) {
+    int newx = i + xx[r];
+    int newy = j + yy[r];
+    if (newx < 0 || newy < 0 || newx >= grid.size() || newy >= grid.size())
+      continue;
+    grid[i][j] = 2;
+    backtrack(newx, newy, ans, grid, curr + dir[r]);
+    grid[i][j] = 1;
+  }
+}
+vector<string> findPath(vector<vector<int>> &m, int n) {
+  vector<string> ans;
+  backtrack(0, 0, ans, m, "");
+  return ans;
+}
+int main() {
+  stack<int> st;
+  st.push(41);
+  st.push(8);
+  st.push(7);
+  st.push(6);
+  st.push(5);
+  sortStack(st);
+  while (!st.empty()) {
+    cout << st.top() << " ";
+    st.pop();
+  }
+}
+// 11 2 32 3 41
