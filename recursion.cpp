@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stack>
 #include <string>
+#include <unordered_set>
 using namespace std;
 double myPow(double x, int n) {
   if (n < 0)
@@ -662,6 +663,41 @@ void backtrack(int i, int j, vector<string> &ans, vector<vector<int>> &grid,
     grid[i][j] = 1;
   }
 }
+/*
+Example 2:
+
+Input: s = "applepenapple", wordDict = ["apple","pen"]
+Output: true
+Explanation: Return true because "applepenapple" can be segmented as "apple pen
+apple". Note that you are allowed to reuse a dictionary word. Example 3:
+
+Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
+Output: false
+
+*/
+
+bool func(string s, unordered_set<string> &dict, int ind, int check) {
+  if (ind >= s.size()) {
+    return check == s.size();
+  }
+  string temp = "";
+  bool ans = false;
+  for (int i = ind; i < s.size(); i++) {
+    temp = temp + s[i];
+    if (dict.find(temp) != dict.end()) {
+      ans = ans | func(s, dict, i + 1, check + temp.size());
+      if (ans == true)
+        return true;
+    }
+  }
+  return false;
+}
+bool wordBreak(string s, vector<string> &wordDict) {
+  unordered_set<string> dict;
+  dict.insert(wordDict.begin(), wordDict.end());
+  return func(s, dict, 0, 0);
+}
+
 vector<string> findPath(vector<vector<int>> &m, int n) {
   vector<string> ans;
   backtrack(0, 0, ans, m, "");
