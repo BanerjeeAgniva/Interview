@@ -453,6 +453,68 @@ vector<string> letterCombinationsOfAphoneNumberr(string digits) {
   backtrack(digits, map, current, 0, result);
   return result;
 }
+/*
+Palindrome Partitioning
+Given a string s, partition s such that every
+substring
+ of the partition is a
+palindrome
+. Return all possible palindrome partitioning of s.
+
+
+
+Example 1:
+
+Input: s = "aab"
+Output: [["a","a","b"],["aa","b"]]
+Example 2:
+
+Input: s = "a"
+Output: [["a"]]
+
+
+abab  -->  a,b,a,b     aba,b        a,bab
+
+is a palindrome? yes --->   Okay now the subproblem becomes to check for all
+answer in  bab Now --> ab  ab is not a palndrome then lite Now aba -->
+palindrome ---> Okay subproblem becomes to check for all partitions in b
+
+*/
+bool checkPalindrome(string s) {
+  int len = s.length();
+  int i = 0;
+  int j = len - 1;
+  while (i <= j) {
+    if (s[i] != s[j])
+      return false;
+    i++;
+    j--;
+  }
+  return true;
+}
+void util(int index, string s, vector<vector<string>> &ans,
+          vector<string> curr) {
+  if (index == s.length()) {
+    ans.push_back(curr);
+    return;
+  }
+  // partition
+  string temp = "";
+  for (int i = index; i < s.length(); i++) {
+    temp += s[i];
+    if (checkPalindrome(temp)) {
+      curr.push_back(temp);
+      util(i + 1, s, ans, curr);
+      curr.pop_back();
+    }
+  }
+}
+vector<vector<string>> partition(string s) {
+  vector<vector<string>> ans;
+  vector<string> curr;
+  util(0, s, ans, curr);
+  return ans;
+}
 
 int main() {
   stack<int> st;
