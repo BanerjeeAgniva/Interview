@@ -560,19 +560,84 @@ bool exist(vector<vector<char>> &board, string word) {
     }
   }
   return false;
-}
 
-int main() {
-  stack<int> st;
-  st.push(41);
-  st.push(8);
-  st.push(7);
-  st.push(6);
-  st.push(5);
-  sortStack(st);
-  while (!st.empty()) {
-    cout << st.top() << " ";
-    st.pop();
+  /*
+  If you have placed a queen in row r then i wont place another queen in the
+  same row For every row iterate through all the columns : If there is already a
+  queen in the colum then continue If there is already a queen in the positive
+  diagonal (bottom left to top right) denoted by same R+C value
+        ------>  (3,0) (2,1) (1,2) (0,3)  then you cant put a queen there
+      If there is already a queen in the negative diagonal (top left to bottom
+  right) denoted by same R-C value
+        ------>  (0,0) (1,1) (2,2) (3,3)  then you cant put a queen there
+     IF YOU CAN PUT A QUEEN ---> Mark that spot call backtrack for the next row
+     so that the sub problem becomes the board (r-1 * c) remaining board
+    After returning unmark the spot that you had marked Q so that other answers
+  can be recorded
+
+  Space optimize --> O(N) by  :::::::>>>>
+          vector<int> cols(n, 0);
+          vector<int> posdiag(2 * n - 1, 0);
+          vector<int> negdiag(2 * n - 1, 0);
+
+  TIme Complexity ---> O(N!)
+  The time complexity of the backtracking solution for the N-Queens problem is
+  approximately \(O(N!)\) in the worst case. This is because the first queen has
+  \(N\) options for placement, the second queen has
+  \(N-1\) options after placing the first queen, the third queen has \(N-2\)
+  options after placing the first two queens, and so forth. This factorial
+  growth represents the upper bound of the time complexity. Although the actual
+  complexity is often less than \(N!\) due to the pruning of invalid positions
+  as the algorithm progresses, the factorial bound still provides a good
+  estimate of the worst-case scenario.
+   */
+
+  vector<vector<string>> solveNQueens(int n) {
+    vector<vector<string>> ans;
+    string s(n, '.');
+    vector<string> board(n);
+    for (int i = 0; i < n; i++)
+      board[i] = s;
+    vector<int> leftRow(n, 0);
+    vector<int> uppDiag(2 * n - 1, 0);
+    vector<int> lowDiag(2 * n - 1, 0);
+    util(0, n, ans, leftRow, uppDiag, lowDiag, board);
+    return ans;
   }
-}
-// 11 2 32 3 41
+  void util(int col, int n, vector<vector<string>> &ans, vector<int> &leftRow,
+            vector<int> &uppDiag, vector<int> &lowDiag, vector<string> board) {
+    if (col == n) {
+      ans.push_back(board);
+      return;
+    }
+    // check each row for the particular column
+    for (int row = 0; row < n; row++) {
+      if (leftRow[row] == 0 && uppDiag[row + col] == 0 &&
+          lowDiag[n - 1 + row - col] == 0) {
+        leftRow[row] = 1;
+        uppDiag[row + col] = 1;
+        lowDiag[n - 1 + row - col] = 1;
+        board[row][col] = 'Q';
+        util(col + 1, n, ans, leftRow, uppDiag, lowDiag, board);
+        board[row][col] = '.';
+        leftRow[row] = 0;
+        uppDiag[row + col] = 0;
+        lowDiag[n - 1 + row - col] = 0;
+      }
+    }
+  }
+
+  int main() {
+    stack<int> st;
+    st.push(41);
+    st.push(8);
+    st.push(7);
+    st.push(6);
+    st.push(5);
+    sortStack(st);
+    while (!st.empty()) {
+      cout << st.top() << " ";
+      st.pop();
+    }
+  }
+  // 11 2 32 3 41
