@@ -427,6 +427,33 @@ vector<string> letterCombinationsOfAphoneNumber(string digits) {
   return ans;
 }
 
+void backtrack(const string &digits, const vector<string> &map, string &current,
+               int index, vector<string> &result) {
+  if (index == digits.size()) {
+    result.push_back(current);
+    return;
+  }
+  string letters = map[digits[index] - '0'];
+  for (char c : letters) {
+    current.push_back(c);
+    backtrack(digits, map, current, index + 1,
+              result); // ----> backtrack inside a for loop !!
+    current.pop_back();
+  }
+}
+
+vector<string> letterCombinationsOfAphoneNumberr(string digits) {
+  if (digits.empty())
+    return {};
+
+  vector<string> map = {"",    "",    "abc",  "def", "ghi",
+                        "jkl", "mno", "pqrs", "tuv", "wxyz"};
+  vector<string> result;
+  string current;
+  backtrack(digits, map, current, 0, result);
+  return result;
+}
+
 int main() {
   stack<int> st;
   st.push(41);
