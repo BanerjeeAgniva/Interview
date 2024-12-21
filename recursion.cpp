@@ -515,6 +515,52 @@ vector<vector<string>> partition(string s) {
   util(0, s, ans, curr);
   return ans;
 }
+/*
+Input: board =
+[
+["A","B","C","E"],
+["S","F","C","S"],
+["A","D","E","E"]
+],
+word = "ABCCED"
+Output: true
+
+DFS + Backtracking
+
+How will you backtrack?
+ whenever you encounter a letter mark it  * to show that it has been encountered
+  and once you are done checking in that direction change it back to original
+*/
+int x[4] = {-1, 0, 1, 0};
+int y[4] = {0, 1, 0, -1};
+bool help(vector<vector<char>> &board, string word, int i, int j, int check) {
+  if (check == word.size())
+    return true;
+  if (i < 0 || j < 0 || i >= board.size() || j >= board[0].size())
+    return false;
+  if (word[check] != board[i][j])
+    return false;
+  board[i][j] = '*'; // used
+  int ans = false;
+  for (int r = 0; r < 4; r++) {
+    ans = ans | help(board, word, i + x[r], j + y[r], check + 1);
+  }
+  board[i][j] = word[check];
+  return ans;
+}
+bool exist(vector<vector<char>> &board, string word) {
+  int m = board.size();
+  int n = board[0].size();
+  for (int i = 0; i < m; i++) {
+    for (int j = 0; j < n; j++) {
+      if (board[i][j] == word[0]) {
+        if (help(board, word, i, j, 0))
+          return true;
+      }
+    }
+  }
+  return false;
+}
 
 int main() {
   stack<int> st;
