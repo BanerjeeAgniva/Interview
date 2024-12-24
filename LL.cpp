@@ -1,9 +1,11 @@
 #include <iostream>
 using namespace std;
+//-------------------------------
 struct node {
   int val;
   struct node *next = NULL;
 };
+//-------------------------------
 struct node *newnode(int x) {
   struct node *makenode = new struct node;
   makenode->val = x;
