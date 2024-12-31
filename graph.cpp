@@ -46,3 +46,57 @@ int numProvinces(
   }
   return ans;
 }
+/*
+You are given an m x n grid where each cell can have one of three values:
+
+0 representing an empty cell,
+1 representing a fresh orange, or
+2 representing a rotten orange.
+Every day, any fresh orange that is 4-directionally adjacent to a rotten orange
+becomes rotten.
+
+Return the minimum number of days that must elapse until NO cell has a fresh
+orange. If this is impossible, return -1.
+*/
+int orangesRotting(vector<vector<int>> &grid) {
+  if (grid.empty())
+    return 0;
+  int m = grid.size(), n = grid[0].size(), days = 0, tot = 0, cnt = 0;
+  /*
+Total_oranges tot - It will store total number of oranges in the grid ( Rotten +
+Fresh ) Count - It cnt will store the total number of oranges rotten by us .
+Total_time days - total time taken to rotten.
+  */
+  queue<pair<int, int>> rotten;
+  for (int i = 0; i < m; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (grid[i][j] != 0)
+        tot++;
+      if (grid[i][j] == 2)
+        rotten.push({i, j}); // push the rotten orange indices into queue
+    }
+  }
+
+  int dx[4] = {0, 0, 1, -1};
+  int dy[4] = {1, -1, 0, 0};
+
+  while (!rotten.empty()) {
+    int k = rotten.size(); // number of rotten oranges currently in the queue
+    cnt += k;
+    while (k--) {
+      int x = rotten.front().first, y = rotten.front().second;
+      rotten.pop();
+      for (int i = 0; i < 4; ++i) {
+        int nx = x + dx[i], ny = y + dy[i];
+        if (nx < 0 || ny < 0 || nx >= m || ny >= n || grid[nx][ny] != 1)
+          continue;
+        grid[nx][ny] = 2;
+        rotten.push({nx, ny});
+      }
+    }
+    if (!rotten.empty())
+      days++; // we have oranges in queue which will rot in a days time
+  }
+
+  return tot == cnt ? days : -1;
+}
