@@ -2,7 +2,7 @@
 #include <vector>
 using namespace std;
 // Function to find the index of the largest element <= k
-int findFloor(vector<int> &arr, int k) {
+int findFloor(vector<int> &arr, int k) { // lowerbound
   int left = 0;
   int right = arr.size() - 1;
   if (arr[0] > k)
@@ -36,7 +36,7 @@ ceil(x) will give the last occurence of x in the array
 Number of occurences of x = ceil(x) - floor(x)  [Assuming x is there ]
 */
 // Function to find the index of the smallest element >= k
-int findCeilIndex(const vector<int> &arr, int k) {
+int findCeilIndex(const vector<int> &arr, int k) { // upperbound
   int low = 0, high = arr.size() - 1;
   int ceilIndex = -1;
   while (low <= high) {
@@ -131,6 +131,13 @@ int findKRotation(vector<int> &arr) {
   }
   return ans;
 }
+/*
+if you select any indice --> one of the sides will be sorted for sure
+your question essentially becomes what is the indice of the first element of the
+unrotated array so your question essentually becomes what is the indice of the
+minimum element of the array
+*/
+//---
 /*
 You are given a sorted array consisting of only integers where every element
 appears exactly twice, except for one element which appears exactly once. Return
@@ -345,3 +352,184 @@ int findPages(vector<int> &arr, int n, int m) {
   return left;
 }
 //-----
+double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2) {
+  int n1 = nums1.size();
+  int n2 = nums2.size();
+  if (n1 > n2)
+    return findMedianSortedArrays(nums2, nums1);
+  int cut1, cut2, l1, l2, r1, r2, lb, rb;
+  int lhl = (n1 + n2 + 1) /
+            2; // so that lefthalf has >= no of elements than right half
+  int tot = (n1 + n2);
+  lb = 0;
+  rb = n1;
+  while (lb <= rb) {
+    cut1 = (lb + rb) / 2;
+    cut2 = lhl - cut1;
+    if (cut1 != 0)
+      l1 = nums1[cut1 - 1];
+    else
+      l1 = INT_MIN;
+    if (cut2 != 0)
+      l2 = nums2[cut2 - 1];
+    else
+      l2 = INT_MIN;
+    if (cut1 != n1)
+      r1 = nums1[cut1];
+    else
+      r1 = INT_MAX;
+    if (cut2 != n2)
+      r2 = nums2[cut2];
+    else
+      r2 = INT_MAX;
+
+    if (l1 <= r2 && l2 <= r1) {
+      if (tot % 2 == 1)
+        return max(l1, l2);
+      else
+        return (max(l1, l2) + min(r1, r2)) / 2.0;
+    }
+    if (l1 > r2)
+      rb = cut1 - 1; // push cut1 towards left so that l1 decreases
+    else if (l2 > r1)
+      lb = cut1 + 1; //  push cut1 towards right so that r1 increases
+  }
+  return -2;
+}
+/*
+Given two sorted arrays a[] and b[] and an element k, the task is to find the
+element that would be at the kth position of the combined sorted array.
+*/
+int kthElement(int k, vector<int> &arr1, vector<int> &arr2) {
+  int n1 = arr1.size(); // 3
+  int n2 = arr2.size(); // 4
+  if (n1 > n2)
+    return kthElement(k, arr2, arr1);
+  int left = max(0, k - n2); // k=2
+  int right = min(n1, k);
+  while (left <= right) {
+    int cut1 = (left + right) / 2;
+    int cut2 = k - cut1;
+    int l1 = (cut1 == 0) ? INT_MIN : arr1[cut1 - 1];
+    int l2 = (cut2 == 0) ? INT_MIN : arr2[cut2 - 1];
+    int r1 = (cut1 == n1) ? INT_MAX : arr1[cut1];
+    int r2 = (cut2 == n2) ? INT_MAX : arr2[cut2];
+    if (l1 <= r2 && l2 <= r1)
+      return max(l1, l2);
+    else if (l1 > r2)
+      right = cut1 - 1;
+    else
+      left = cut1 + 1;
+  }
+  return -1;
+}
+/*
+Row with max 1s
+
+n*m matrix
+{{0, 0, 0, 1},     start from pos=3
+                                     pos=2
+ {0, 0, 1, 1},     start from pos=2
+                                     pos=1
+ {0, 1, 1, 1},     start from pos=1
+                                     pos=0
+ {1, 1, 1, 1}}     start from pos=0
+                                     j=-1 return
+
+LOGIC---> Once you have found where the starting one of the previous row is, you
+dont again have to start from the rightmost position to find the starting one of
+the next row, you can learn from the previous result
+*/
+int rowWithMax1s(vector<vector<int>> arr, int n, int m) {
+  int count = 0;
+  int ans = 0;
+  int point = m - 1;
+
+  for (int i = 0; i < n; i++) {
+    int j = point;
+    while (j >= 0) {
+      if (arr[i][j] == 1) {
+        j--;
+        ans = i;
+      } else {
+        point = j;
+        break;
+      }
+    }
+    if (j < 0)
+      return i;
+  }
+  return (point == m - 1) ? -1 : ans;
+}
+//----------
+// Search in a 2D Matrix --> int row= mid/n ; int col= mid%n ;
+//----
+/* =====================================
+Write an efficient algorithm that searches for a value target in an m x n
+integer matrix matrix. This matrix has the following properties: Integers in
+each row are sorted in ascending from left to right. Integers in each column are
+sorted in ascending from top to bottom. Input: matrix =
+[[1,4,7,11,15]
+ [2,5,8,12,19],
+ [3,6,9,16,22],
+ [10,13,14,17,24],
+ [18,21,23,26,30]],
+ target = 5
+Output: true
+*/
+/*
+LOGIC --> Start from top-right element because the elements downwards will be
+strictly increasing and the elements to the left will be strictly decreasing
+(15) If our target element (5) is lesser than our current elemnt(15) then move
+left (col--) Target element (5) < current element(11)  move left col-- Target
+element(5) < current element(7) move left col-- Target element(5) > current
+element(4) move down row++ Target elemenmt==current element return true
+======================================================= */
+// Median in a row-wise sorted Matrix   <---- STANDARD QUESTION
+/*
+Input: mat = [[1, 3, 5], [2, 6, 9], [3, 6, 9]]
+Output: 5
+Explanation: Sorting matrix elements gives us {1,2,3,3,5,6,6,9,9}. Hence, 5 is
+median.
+*/
+int ub(vector<int> &arr, int num) {
+  int left = 0;
+  int right = arr.size();
+  while (left < right) {
+    int mid = (left + right) / 2;
+    if (arr[mid] <=
+        num) { // -----> we want strictly upperbound smallest number > num
+      left = mid + 1; // we dont want smallest number >= num
+    } else {
+      right = mid;
+    }
+  }
+  return left; // Left is now the number of elements <= num
+}
+int blackbox(vector<vector<int>> &matrix, int num) {
+  int sum = 0;
+  for (int i = 0; i < matrix.size(); i++) {
+    sum += ub(matrix[i], num);
+  }
+  return sum;
+}
+// The number of numbers which are <= median should be greater than half of the
+// total number of elements
+int median(vector<vector<int>> &matrix, int R, int C) {
+  int target = (R * C) / 2;
+  int left = INT_MAX;
+  int right = INT_MIN;
+  for (int i = 0; i < R; i++) {
+    left = min(left, matrix[i][0]);
+    right = max(right, matrix[i][C - 1]);
+  }
+  while (left <= right) {
+    int mid = (left + right) / 2;
+    int curr = blackbox(matrix, mid);
+    if (curr > target)
+      right = mid - 1;
+    else
+      left = mid + 1;
+  }
+  return left;
+}
