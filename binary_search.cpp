@@ -132,6 +132,13 @@ int findKRotation(vector<int> &arr) {
   return ans;
 }
 /*
+if you select any indice --> one of the sides will be sorted for sure
+your question essentially becomes what is the indice of the first element of the
+unrotated array so your question essentually becomes what is the indice of the
+minimum element of the array
+*/
+//---
+/*
 You are given a sorted array consisting of only integers where every element
 appears exactly twice, except for one element which appears exactly once. Return
 the single element that appears only once. Your solution must run in O(log n)
