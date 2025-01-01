@@ -1,4 +1,7 @@
 #include <queue>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 using namespace std;
 
@@ -255,7 +258,7 @@ original board. You do not need to return anything.
         becomes
         {'X', 'X', 'X', 'X'},
         {'X', 'X', 'X', 'X'},
-        {'X', 'X', 'O', 'X'},
+        {'X', 'X', 'X', 'X'},
         {'X', 'X', 'X', 'X'},
         {'X', 'X', 'O', 'O'}
 -----------------------------------
@@ -264,6 +267,8 @@ Consequentially any ) connected to a border 0 will not turn into X
 Other all Os will turn into X
 Logic ---> dfs on border O elements
 -----------------------------------
+Number of enclaves --> number of Os covered by Xs answer will be 4
+Similar logic
 */
 void dfs(int row, int col, vector<vector<int>> &vis, vector<vector<char>> &mat,
          int delrow[], int delcol[]) {
@@ -321,4 +326,148 @@ vector<vector<char>> fill(int n, int m, vector<vector<char>> mat) {
   }
 
   return mat;
+}
+
+/*
+WORD LADDER
+Given two distinct words startWord and targetWord, and a list denoting wordList
+of unique words of equal lengths. Find the length of the shortest transformation
+sequence from startWord to targetWord. Keep the following conditions in mind:
+
+A word can only consist of lowercase characters.
+Only one letter can be changed in each transformation.
+Each transformed word must exist in the wordList including the targetWord.
+startWord may or may not be part of the wordList
+
+Input:
+wordList = {"des","der","dfr","dgt","dfs"}
+startWord = "der", targetWord = "dfs"
+Output:
+3
+Explanation:
+The length of the smallest transformation sequence from "der" to
+"dfs" is 3 i.e. "der" -> (replace ‘e’ by ‘f’) -> "dfr" -> (replace ‘r’ by ‘s’)
+-> "dfs". So, it takes 3 different strings for us to reach the targetWord. Each
+of these strings are present in the wordList.
+*/
+
+int wordLadderLength(string startWord, string targetWord,
+                     vector<string> &wordList) {
+  //{word,transitions to reach ‘word’}.
+  queue<pair<string, int>> q;
+  q.push({startWord, 1});
+  unordered_set<string> st(wordList.begin(), wordList.end());
+  st.erase(startWord);
+  while (!q.empty()) {
+    string word = q.front().first;
+    int steps = q.front().second;
+    q.pop();
+    //-----------------------------------
+    if (word == targetWord)
+      return steps;
+    //-----------------------------------
+    for (int i = 0; i < word.size(); i++) {
+      // Now, replace each character of ‘word’ with char
+      // from a-z then check if ‘word’ exists in wordList.
+      char original = word[i];
+      for (char ch = 'a'; ch <= 'z'; ch++) {
+        word[i] = ch;
+        // check if it exists in the set and push it in the queue.
+        if (st.count(word)) {
+          st.erase(word);
+          q.push({word, steps + 1});
+        }
+      }
+      word[i] = original; // backtrack
+    }
+  }
+  return 0;
+}
+
+/*
+G-30 : Word Ladder-II
+Given two distinct words startWord and targetWord, and a list denoting wordList
+of unique words of equal lengths. Find all shortest transformation sequence(s)
+from startWord to targetWord. You can return them in any order possible. Example
+1: Input: startWord = "der", targetWord = "dfs", wordList =
+{"des","der","dfr","dgt","dfs"} Output: [ [ “der”, “dfr”, “dfs” ], [ “der”,
+“des”, “dfs”] ] Explanation: The length of the smallest transformation sequence
+here is 3. Following are the only two shortest ways to get to the targetWord
+from the startWord : "der" -> ( replace ‘r’ by ‘s’ ) -> "des" -> ( replace ‘e’
+by ‘f’ ) -> "dfs". "der" -> ( replace ‘e’ by ‘f’ ) -> "dfr" -> ( replace ‘r’ by
+‘s’ ) -> "dfs".
+*/
+
+vector<vector<string>> findSequences(string beginWord, string endWord,
+                                     vector<string> &wordList) {
+  unordered_set<string> st(wordList.begin(), wordList.end());
+  // Creating a queue ds which stores the words in a sequence which is
+  // required to reach the targetWord after successive transformations.
+  queue<vector<string>> q;
+  // BFS traversal with pushing the new formed sequence in queue
+  // when after a transformation, a word is found in wordList.
+  q.push({beginWord});
+  // A vector defined to store the words being currently used
+  // on a level during BFS.
+  vector<string> usedOnLevel;
+  usedOnLevel.push_back(beginWord);
+  int level = 0;
+  vector<vector<string>> ans;
+  while (!q.empty()) {
+    vector<string> vec = q.front();
+    q.pop();
+
+    // Now, erase all words that have been
+    // used in the previous levels to transform
+    if (vec.size() > level) {
+      level++;
+      for (auto it : usedOnLevel) {
+        st.erase(it);
+      }
+    }
+
+    string word = vec.back();
+
+    // store the answers if the end word matches with targetWord.
+    if (word == endWord) {
+      // the first sequence where we reached end
+      if (ans.size() == 0) {
+        ans.push_back(vec);
+      } else if (ans[0].size() ==
+                 vec.size()) // we want shortest transformation sequences only
+      {
+        ans.push_back(vec);
+      }
+    }
+    for (int i = 0; i < word.size(); i++) {
+      // Now, replace each character of ‘word’ with char
+      // from a-z then check if ‘word’ exists in wordList.
+      char original = word[i];
+      for (char c = 'a'; c <= 'z'; c++) {
+        word[i] = c;
+        if (st.count(word)) {
+          // Check if the word is present in the wordList and
+          // push the word along with the new sequence in the queue.
+          vec.push_back(word);
+          q.push(vec);
+          // mark as visited on the level
+          usedOnLevel.push_back(word);
+          vec.pop_back(); // backtrack
+        }
+      }
+      word[i] = original; // backtrack
+    }
+  }
+  return ans;
+}
+
+// A comparator function to sort the answer.
+bool comp(vector<string> a, vector<string> b) {
+  string x = "", y = "";
+  for (string i : a)
+    x += i;
+  for (string i : b)
+    y += i;
+
+  return x < y; // you would want x to be lexicographically smaller than y
 }
