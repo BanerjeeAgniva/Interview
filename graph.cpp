@@ -1,4 +1,5 @@
 #include <queue>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -511,7 +512,9 @@ bool comp(vector<string> a, vector<string> b) {
 
   return x < y; // you would want x to be lexicographically smaller than y
 }
-
+//-----
+// Is graph bipartite?
+//------
 bool dfs(int node, int col, int color[], vector<int> adj[]) {
   color[node] = col;
 
@@ -545,4 +548,62 @@ bool isBipartite(int V, vector<int> adj[]) {
     }
   }
   return true;
+}
+
+//------
+// TOPO SORT
+// An ordering in Directed Acyclic Graph where
+// x y z
+// node x will come before node y and node y will come before node z
+/*
+
+        5       4
+        | \   / |
+        |  v v  |
+        |   0   |
+        |  ^ ^  |
+        v /   \ v
+        2       1
+         \
+          v
+           3
+
+5 --> 0
+5 --> 2
+4 --> 0
+4 --> 1
+2 --> 3
+3 --> 1
+
+Output: 5, 4, 2, 3, 1, 0
+5 appears before 0
+5 appears before 2
+.
+.
+3 appears before 1
+*/
+void dfs(int node, vector<int> vis, stack<int> &st, vector<vector<int>> adj) {
+  vis[node] = 1;
+  for (auto it : adj[node]) // This process will ultimately lead to nodes
+                            // getting pushed to stack
+    if (!vis[it])
+      dfs(it, vis, st, adj);
+
+  st.push(node); // which have the least number of outward edges from them
+                 // so the most dependant node (node on which other nodes will
+                 // depend on) will be at the bottom of the stack
+}
+vector<int> topoSort(int V, vector<vector<int>> adj) {
+  vector<int> vis(V, 0);
+  stack<int> st;
+  for (int i = 0; i < V; i++)
+    if (!vis[i])
+      dfs(i, vis, st, adj);
+
+  vector<int> ans;
+  while (!st.empty()) {
+    ans.push_back(st.top());
+    st.pop();
+  }
+  return ans;
 }
