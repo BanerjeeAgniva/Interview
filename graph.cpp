@@ -159,7 +159,7 @@ vector<vector<int>> floodFill(vector<vector<int>> &image, int sr, int sc,
 Detect cycle in undirected graph
 
 */
-bool dfs(int node, int parent, int vis[], vector<int> adj[]) {
+bool dfs(int node, int parent, vector<int> &vis, vector<int> adj[]) {
   vis[node] = 1;
   // visit adjacent nodes
   for (auto adjacentNode : adj[node]) {
@@ -176,7 +176,7 @@ bool dfs(int node, int parent, int vis[], vector<int> adj[]) {
 }
 // Function to detect cycle in an undirected graph.
 bool isCycle(int V, vector<int> adj[]) {
-  int vis[V] = {0};
+  vector<int> vis(V, 0);
   // for graph with connected components
   for (int i = 0; i < V; i++) {
     if (!vis[i]) {
@@ -185,4 +185,55 @@ bool isCycle(int V, vector<int> adj[]) {
     }
   }
   return false;
+}
+/*
+Given an m x n binary matrix mat, return the distance of the nearest 0 for each
+cell. The distance between two cells sharing a common edge is 1.
+
+Input: mat = [[0,0,0],[0,1,0],[1,1,1]]
+Output: [[0,0,0],[0,1,0],[1,2,1]]
+*/
+vector<vector<int>> nearest(vector<vector<int>> grid) {
+  int n = grid.size();
+  int m = grid[0].size();
+  // visited and distance matrix
+  vector<vector<int>> vis(n, vector<int>(m, 0));
+  vector<vector<int>> dist(n, vector<int>(m, 0));
+  // <coordinates, steps>
+  queue<pair<pair<int, int>, int>> q;
+  // traverse the matrix
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      // start BFS if cell contains 1
+      if (grid[i][j] == 1) {
+        q.push({{i, j}, 0});
+        vis[i][j] = 1;
+      }
+    }
+  }
+
+  int delrow[] = {-1, 0, +1, 0};
+  int delcol[] = {0, +1, 0, -1};
+
+  // traverse till queue becomes empty
+  while (!q.empty()) {
+    int row = q.front().first.first;
+    int col = q.front().first.second;
+    int steps = q.front().second;
+    q.pop();
+    dist[row][col] = steps;
+    // for all 4 neighbours
+    for (int i = 0; i < 4; i++) {
+      int nrow = row + delrow[i];
+      int ncol = col + delcol[i];
+      // check for valid unvisited cell
+      if (nrow >= 0 && nrow < n && ncol >= 0 && ncol < m &&
+          vis[nrow][ncol] == 0) {
+        vis[nrow][ncol] = 1;
+        q.push({{nrow, ncol}, steps + 1});
+      }
+    }
+  }
+  // return distance matrix
+  return dist;
 }
