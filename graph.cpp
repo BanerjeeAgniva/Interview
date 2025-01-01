@@ -160,7 +160,6 @@ vector<vector<int>> floodFill(vector<vector<int>> &image, int sr, int sc,
 }
 /*
 Detect cycle in undirected graph
-
 */
 bool dfs(int node, int parent, vector<int> &vis, vector<int> adj[]) {
   vis[node] = 1;
@@ -177,13 +176,54 @@ bool dfs(int node, int parent, vector<int> &vis, vector<int> adj[]) {
   }
   return false;
 }
-// Function to detect cycle in an undirected graph.
 bool isCycle(int V, vector<int> adj[]) {
   vector<int> vis(V, 0);
   // for graph with connected components
   for (int i = 0; i < V; i++) {
     if (!vis[i]) {
       if (dfs(i, -1, vis, adj) == true)
+        return true;
+    }
+  }
+  return false;
+}
+//-----
+// Cycle in directed graph
+// check picture
+// after returning to node 3, when we go to node 7 then we do dfs on 7, then if
+// we check 5 we see its visited but has it been visited on the same PATH? NO so
+// its not a cycle
+//-------
+bool dfsCheck(int node, vector<vector<int>> &adj, vector<int> &vis,
+              vector<int> &pathVis) {
+  vis[node] = 1;
+  pathVis[node] = 1;
+  // traverse for adjacent nodes
+  for (auto it : adj[node]) {
+    // when the node is not visited
+    if (!vis[it]) {
+      if (dfsCheck(it, adj, vis, pathVis) == true)
+        return true;
+    }
+    // if the node has been previously visited
+    // but it has to be visited on the same path  <------- MAIN CONCEPT
+    else if (pathVis[it]) {
+      return true;
+    }
+  }
+
+  pathVis[node] = 0;
+  return false;
+}
+
+// Function to detect cycle in a directed graph.
+bool isCyclic(int V, vector<vector<int>> adj) {
+  vector<int> vis(V, 0);
+  vector<int> pathVis(V, 0);
+
+  for (int i = 0; i < V; i++) {
+    if (!vis[i]) {
+      if (dfsCheck(i, adj, vis, pathVis) == true)
         return true;
     }
   }
