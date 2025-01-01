@@ -1,4 +1,7 @@
 #include <queue>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 using namespace std;
 
@@ -159,7 +162,7 @@ vector<vector<int>> floodFill(vector<vector<int>> &image, int sr, int sc,
 Detect cycle in undirected graph
 
 */
-bool dfs(int node, int parent, int vis[], vector<int> adj[]) {
+bool dfs(int node, int parent, vector<int> &vis, vector<int> adj[]) {
   vis[node] = 1;
   // visit adjacent nodes
   for (auto adjacentNode : adj[node]) {
@@ -176,7 +179,7 @@ bool dfs(int node, int parent, int vis[], vector<int> adj[]) {
 }
 // Function to detect cycle in an undirected graph.
 bool isCycle(int V, vector<int> adj[]) {
-  int vis[V] = {0};
+  vector<int> vis(V, 0);
   // for graph with connected components
   for (int i = 0; i < V; i++) {
     if (!vis[i]) {
@@ -185,4 +188,321 @@ bool isCycle(int V, vector<int> adj[]) {
     }
   }
   return false;
+}
+/*
+Given an m x n binary matrix mat, return the distance of the nearest 0 for each
+cell. The distance between two cells sharing a common edge is 1.
+
+Input: mat = [[0,0,0],[0,1,0],[1,1,1]]
+Output: [[0,0,0],[0,1,0],[1,2,1]]
+*/
+vector<vector<int>> nearest(vector<vector<int>> grid) {
+  int n = grid.size();
+  int m = grid[0].size();
+  // visited and distance matrix
+  vector<vector<int>> vis(n, vector<int>(m, 0));
+  vector<vector<int>> dist(n, vector<int>(m, 0));
+  // <coordinates, steps>
+  queue<pair<pair<int, int>, int>> q;
+  // traverse the matrix
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      // start BFS if cell contains 1
+      if (grid[i][j] == 1) {
+        q.push({{i, j}, 0});
+        vis[i][j] = 1;
+      }
+    }
+  }
+
+  int delrow[] = {-1, 0, +1, 0};
+  int delcol[] = {0, +1, 0, -1};
+
+  // traverse till queue becomes empty
+  while (!q.empty()) {
+    int row = q.front().first.first;
+    int col = q.front().first.second;
+    int steps = q.front().second;
+    q.pop();
+    dist[row][col] = steps;
+    // for all 4 neighbours
+    for (int i = 0; i < 4; i++) {
+      int nrow = row + delrow[i];
+      int ncol = col + delcol[i];
+      // check for valid unvisited cell
+      if (nrow >= 0 && nrow < n && ncol >= 0 && ncol < m &&
+          vis[nrow][ncol] == 0) {
+        vis[nrow][ncol] = 1;
+        q.push({{nrow, ncol}, steps + 1});
+      }
+    }
+  }
+  // return distance matrix
+  return dist;
+}
+/*
+You are given an m x n matrix board containing letters 'X' and 'O', capture
+regions that are surrounded:
+
+Connect: A cell is connected to adjacent cells horizontally or vertically.
+Region: To form a region connect every 'O' cell.
+Surround: The region is surrounded with 'X' cells if you can connect the region
+with 'X' cells and none of the region cells are on the edge of the board. To
+capture a surrounded region, replace all 'O's with 'X's in-place within the
+original board. You do not need to return anything.
+        {'X', 'X', 'X', 'X'},
+        {'X', 'O', 'X', 'X'},
+        {'X', 'O', 'O', 'X'},
+        {'X', 'O', 'X', 'X'},
+        {'X', 'X', 'O', 'O'}
+        becomes
+        {'X', 'X', 'X', 'X'},
+        {'X', 'X', 'X', 'X'},
+        {'X', 'X', 'X', 'X'},
+        {'X', 'X', 'X', 'X'},
+        {'X', 'X', 'O', 'O'}
+-----------------------------------
+If border element is O then it will not turn into X
+Consequentially any ) connected to a border 0 will not turn into X
+Other all Os will turn into X
+Logic ---> dfs on border O elements
+-----------------------------------
+Number of enclaves --> number of Os covered by Xs answer will be 4
+Similar logic
+*/
+void dfs(int row, int col, vector<vector<int>> &vis, vector<vector<char>> &mat,
+         int delrow[], int delcol[]) {
+  vis[row][col] = 1;
+  int n = mat.size();
+  int m = mat[0].size();
+  // check for top, right, bottom, left
+  for (int i = 0; i < 4; i++) {
+    int nrow = row + delrow[i];
+    int ncol = col + delcol[i];
+    // check for valid coordinates and unvisited Os
+    if (nrow >= 0 && nrow < n && ncol >= 0 && ncol < m && !vis[nrow][ncol] &&
+        mat[nrow][ncol] == 'O') {
+      dfs(nrow, ncol, vis, mat, delrow, delcol);
+    }
+  }
+}
+vector<vector<char>> fill(int n, int m, vector<vector<char>> mat) {
+  int delrow[] = {-1, 0, +1, 0};
+  int delcol[] = {0, 1, 0, -1};
+  vector<vector<int>> vis(n, vector<int>(m, 0));
+  // traverse first row and last row
+  for (int j = 0; j < m; j++) {
+    // check for unvisited Os in the boundary rows
+    // first row
+    if (!vis[0][j] && mat[0][j] == 'O') {
+      dfs(0, j, vis, mat, delrow, delcol);
+    }
+
+    // last row
+    if (!vis[n - 1][j] && mat[n - 1][j] == 'O') {
+      dfs(n - 1, j, vis, mat, delrow, delcol);
+    }
+  }
+
+  for (int i = 0; i < n; i++) {
+    // check for unvisited Os in the boundary columns
+    // first column
+    if (!vis[i][0] && mat[i][0] == 'O') {
+      dfs(i, 0, vis, mat, delrow, delcol);
+    }
+
+    // last column
+    if (!vis[i][m - 1] && mat[i][m - 1] == 'O') {
+      dfs(i, m - 1, vis, mat, delrow, delcol);
+    }
+  }
+
+  // if unvisited O then convert to X
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      if (!vis[i][j] && mat[i][j] == 'O')
+        mat[i][j] = 'X';
+    }
+  }
+
+  return mat;
+}
+
+/*
+WORD LADDER
+Given two distinct words startWord and targetWord, and a list denoting wordList
+of unique words of equal lengths. Find the length of the shortest transformation
+sequence from startWord to targetWord. Keep the following conditions in mind:
+
+A word can only consist of lowercase characters.
+Only one letter can be changed in each transformation.
+Each transformed word must exist in the wordList including the targetWord.
+startWord may or may not be part of the wordList
+
+Input:
+wordList = {"des","der","dfr","dgt","dfs"}
+startWord = "der", targetWord = "dfs"
+Output:
+3
+Explanation:
+The length of the smallest transformation sequence from "der" to
+"dfs" is 3 i.e. "der" -> (replace ‘e’ by ‘f’) -> "dfr" -> (replace ‘r’ by ‘s’)
+-> "dfs". So, it takes 3 different strings for us to reach the targetWord. Each
+of these strings are present in the wordList.
+*/
+
+int wordLadderLength(string startWord, string targetWord,
+                     vector<string> &wordList) {
+  //{word,transitions to reach ‘word’}.
+  queue<pair<string, int>> q;
+  q.push({startWord, 1});
+  unordered_set<string> st(wordList.begin(), wordList.end());
+  st.erase(startWord);
+  while (!q.empty()) {
+    string word = q.front().first;
+    int steps = q.front().second;
+    q.pop();
+    //-----------------------------------
+    if (word == targetWord)
+      return steps;
+    //-----------------------------------
+    for (int i = 0; i < word.size(); i++) {
+      // Now, replace each character of ‘word’ with char
+      // from a-z then check if ‘word’ exists in wordList.
+      char original = word[i];
+      for (char ch = 'a'; ch <= 'z'; ch++) {
+        word[i] = ch;
+        // check if it exists in the set and push it in the queue.
+        if (st.count(word)) {
+          st.erase(word);
+          q.push({word, steps + 1});
+        }
+      }
+      word[i] = original; // backtrack
+    }
+  }
+  return 0;
+}
+
+/*
+G-30 : Word Ladder-II
+Given two distinct words startWord and targetWord, and a list denoting wordList
+of unique words of equal lengths. Find all shortest transformation sequence(s)
+from startWord to targetWord. You can return them in any order possible. Example
+1: Input: startWord = "der", targetWord = "dfs", wordList =
+{"des","der","dfr","dgt","dfs"} Output: [ [ “der”, “dfr”, “dfs” ], [ “der”,
+“des”, “dfs”] ] Explanation: The length of the smallest transformation sequence
+here is 3. Following are the only two shortest ways to get to the targetWord
+from the startWord : "der" -> ( replace ‘r’ by ‘s’ ) -> "des" -> ( replace ‘e’
+by ‘f’ ) -> "dfs". "der" -> ( replace ‘e’ by ‘f’ ) -> "dfr" -> ( replace ‘r’ by
+‘s’ ) -> "dfs".
+*/
+
+vector<vector<string>> findSequences(string beginWord, string endWord,
+                                     vector<string> &wordList) {
+  unordered_set<string> st(wordList.begin(), wordList.end());
+  // Creating a queue ds which stores the words in a sequence which is
+  // required to reach the targetWord after successive transformations.
+  queue<vector<string>> q;
+  // BFS traversal with pushing the new formed sequence in queue
+  // when after a transformation, a word is found in wordList.
+  q.push({beginWord});
+  // A vector defined to store the words being currently used
+  // on a level during BFS.
+  vector<string> usedOnLevel;
+  usedOnLevel.push_back(beginWord);
+  int level = 0;
+  vector<vector<string>> ans;
+  while (!q.empty()) {
+    vector<string> vec = q.front();
+    q.pop();
+
+    // Now, erase all words that have been
+    // used in the previous levels to transform
+    if (vec.size() > level) {
+      level++;
+      for (auto it : usedOnLevel) {
+        st.erase(it);
+      }
+    }
+
+    string word = vec.back();
+
+    // store the answers if the end word matches with targetWord.
+    if (word == endWord) {
+      // the first sequence where we reached end
+      if (ans.size() == 0) {
+        ans.push_back(vec);
+      } else if (ans[0].size() ==
+                 vec.size()) // we want shortest transformation sequences only
+      {
+        ans.push_back(vec);
+      }
+    }
+    for (int i = 0; i < word.size(); i++) {
+      // Now, replace each character of ‘word’ with char
+      // from a-z then check if ‘word’ exists in wordList.
+      char original = word[i];
+      for (char c = 'a'; c <= 'z'; c++) {
+        word[i] = c;
+        if (st.count(word)) {
+          // Check if the word is present in the wordList and
+          // push the word along with the new sequence in the queue.
+          vec.push_back(word);
+          q.push(vec);
+          // mark as visited on the level
+          usedOnLevel.push_back(word);
+          vec.pop_back(); // backtrack
+        }
+      }
+      word[i] = original; // backtrack
+    }
+  }
+  return ans;
+}
+
+// A comparator function to sort the answer.
+bool comp(vector<string> a, vector<string> b) {
+  string x = "", y = "";
+  for (string i : a)
+    x += i;
+  for (string i : b)
+    y += i;
+
+  return x < y; // you would want x to be lexicographically smaller than y
+}
+
+bool dfs(int node, int col, int color[], vector<int> adj[]) {
+  color[node] = col;
+
+  // traverse adjacent nodes
+  for (auto it : adj[node]) {
+    // if uncoloured
+    if (color[it] == -1) {
+      if (dfs(it, !col, color, adj) ==
+          false) // colour neighbours of node with opposite colour
+        return false;
+    }
+    // if previously coloured and have the same colour
+    else if (color[it] == col) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool isBipartite(int V, vector<int> adj[]) {
+  int color[V];
+  for (int i = 0; i < V; i++)
+    color[i] = -1;
+
+  // for connected components
+  for (int i = 0; i < V; i++) {
+    if (color[i] == -1) {
+      if (dfs(i, 0, color, adj) == false) // colour ith index with 0
+        return false;
+    }
+  }
+  return true;
 }
