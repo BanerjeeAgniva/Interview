@@ -1,7 +1,9 @@
 #include <iostream>
+#include <map>
 #include <queue>
 #include <stack>
 #include <string>
+#include <vector>
 using namespace std;
 /*
 stack using array
@@ -166,6 +168,77 @@ The second 1's next greater number needs to search circularly, which is also 2.
 // =====
 
 */
+/*
+Example:
+Input:
+nums1 = [4, 5, 2, 25] (array where we find the next greater elements)
+nums2 = [4, 25, 2] (subset of nums1 whose "next greater elements" are needed)
+
+Expected Output:
+For nums2: [5, -1, 25]
+
+for 25 stack is empty so m(25)=-1 push 25]
+for 2, there is an element in stack which is greater than 2 so m(2)=25  push  2
+25] for 5, top of stack is not greater -> pop 25] -> is top of stack (25)
+greater now? yes m(5)=25 push 5 25] for 4, top of stack is greater -> m(4)=5 ,
+push ---> 4 5 25]
+*/
+vector<int> nextGreaterElement(vector<int> &nums1, vector<int> &nums2) {
+  int nge[nums1.size()];
+  stack<int> st;
+  map<int, int> mp;
+  for (int i = nums2.size() - 1; i >= 0; i--) {
+    while (!st.empty() && st.top() <= nums2[i])
+      st.pop(); // <= because strictly greater
+    if (st.empty())
+      mp[nums2[i]] = -1;
+    else
+      mp[nums2[i]] = st.top();
+    st.push(nums2[i]);
+  }
+  vector<int> ans(nums1.size());
+  for (int i = 0; i < nums1.size(); i++) {
+    ans[i] = mp[nums1[i]];
+  }
+  return ans;
+}
+/*
+for A[] = {5,7,1,2,6,0}:
+So, the resultant array is {7,-1,2,6,-1,-1}.
+Remember that we have considered the array to be non-circular.
+For a circular array, the resultant array should be {7,-1,2,6,7,5}.
+*/
+vector<int> nextGreaterElements(vector<int> &nums) {
+  int n = nums.size();
+  vector<int> nge(n, -1);
+  stack<int> st;
+  for (int i = 2 * n - 1; i >= 0; i--) { // circular
+    while (!st.empty() && st.top() <= nums[i % n]) {
+      st.pop();
+    }
+    if (i < n) {
+      if (!st.empty())
+        nge[i] = st.top();
+    }
+    st.push(nums[i % n]);
+  }
+  return nge;
+}
+/*
+5 7 1 2 6 0 5 7 1 2 6 0
+0]
+6]
+2 6]
+1 2 6]
+7]
+5 7]
+answer to 0 becomes ---> 5   0 5 7]
+answer to 6 becomes ----> 7  6 7]
+*/
+
+/*
+monotically decreasing stack
+*/
 vector<int> prevSmaller(vector<int> &A) {
   vector<int> ans(A.size());
   stack<int> st;
@@ -218,6 +291,64 @@ int trap(vector<int> &height) {
     }
   }
   return ans;
+}
+
+/*
+Sum of Subarray Minimums
+Input: arr = [3,1,2,4]
+Output: 17
+Explanation:
+Subarrays are [3], [1], [2], [4], [3,1], [1,2], [2,4], [3,1,2], [1,2,4],
+[3,1,2,4]. Minimums are 3, 1, 2, 4, 1, 1, 2, 1, 1, 1. Sum is 17. 3*1times +
+1*6times + 2*2times + 4*1times = 17
+
+3 1 2 4
+
+what is the previous smaller number index of 1 ---> -1  so number of elements on
+the left which are smaller than 1 (1 inclusive) 1-(-1) =2 what is the next
+smaller number index of 1 ---> 4  so number of elements 4-1 = 3
+
+so total subarrays = 2*3 = 6
+
+1 4 6 7 3 7 8 1 is a better example
+*/
+
+vector<int> findnse(vector<int> &arr) {
+  int n = arr.size();
+  vector<int> nse(n);
+  stack<int> st1;
+  for (int i = n - 1; i >= 0; i--) {
+    while (!st1.empty() && arr[st1.top()] >= arr[i])
+      st1.pop();
+    nse[i] = st1.empty() ? n : st1.top();
+    st1.push(i);
+  }
+  return nse;
+}
+vector<int> findpsee(vector<int> &arr) {
+  int n = arr.size();
+  vector<int> pse(n);
+  stack<int> st2;
+  for (int i = 0; i < n; i++) {
+    while (!st2.empty() && arr[st2.top()] > arr[i])
+      st2.pop();
+    pse[i] = st2.empty() ? -1 : st2.top();
+    st2.push(i);
+  }
+  return pse;
+}
+int sumSubarrayMins(vector<int> &arr) // IMPORTANT
+{
+  vector<int> nse = findnse(arr);
+  vector<int> psee = findpsee(arr);
+  int total = 0;
+  int mod = (int)(1e9 + 7);
+  for (int i = 0; i < arr.size(); i++) {
+    int left = i - psee[i];
+    int right = nse[i] - i;
+    total = (total + (right * left * 1LL * arr[i]) % mod) % mod;
+  }
+  return total;
 }
 
 /*
