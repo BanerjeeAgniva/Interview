@@ -418,57 +418,85 @@ Output: "1219"
 Explanation: Remove the three digits 4, 3, and 2 to form the new number 1219
 which is the smallest.
 */
+string removeKdigits(string num, int k) {
+  // number of operation greater than length we return an empty string
+  if (num.length() <= k)
+    return "0";
 
-// 😉😉😉😉Please upvote if it helps 😉😉😉😉
-class Solution {
-public:
-  string removeKdigits(string num, int k) {
-    // number of operation greater than length we return an empty string
-    if (num.length() <= k)
-      return "0";
+  // k is 0 , no need of removing /  preforming any operation
+  if (k == 0)
+    return num;
 
-    // k is 0 , no need of removing /  preforming any operation
-    if (k == 0)
-      return num;
+  string res = ""; // result string
+  stack<char> s;   // char stack
 
-    string res = ""; // result string
-    stack<char> s;   // char stack
+  s.push(num[0]); // pushing first character into stack
 
-    s.push(num[0]); // pushing first character into stack
-
-    for (int i = 1; i < num.length(); ++i) {
-      while (k > 0 && !s.empty() && num[i] < s.top()) {
-        // if k greater than 0 and our stack is not empty and the upcoming
-        // digit, is less than the current top than we will pop the stack top
-        --k;
-        s.pop();
-      }
-
-      s.push(num[i]);
-
-      // popping preceding zeroes
-      if (s.size() == 1 && num[i] == '0')
-        s.pop();
-    }
-
-    while (k && !s.empty()) {
-      // for cases like "456" where every num[i] > num.top()
+  for (int i = 1; i < num.length(); ++i) {
+    while (k > 0 && !s.empty() && num[i] < s.top()) {
+      // if k greater than 0 and our stack is not empty and the upcoming
+      // digit, is less than the current top than we will pop the stack top
       --k;
       s.pop();
     }
 
-    while (!s.empty()) {
-      res.push_back(s.top()); // pushing stack top to string
-      s.pop();                // pop the top element
-    }
+    s.push(num[i]);
 
-    reverse(res.begin(), res.end()); // reverse the string
-
-    if (res.length() == 0)
-      return "0";
-
-    return res;
+    // popping preceding zeroes
+    if (s.size() == 1 && num[i] == '0')
+      s.pop();
   }
-};
+
+  while (k && !s.empty()) {
+    // for cases like "456" where every num[i] > num.top()
+    --k;
+    s.pop();
+  }
+
+  while (!s.empty()) {
+    res.push_back(s.top()); // pushing stack top to string
+    s.pop();                // pop the top element
+  }
+
+  reverse(res.begin(), res.end()); // reverse the string
+
+  if (res.length() == 0)
+    return "0";
+
+  return res;
+}
+
+/*
+The next greater element of some element x in an array is the first greater
+element that is to the right of x in the same array.
+You are given two distinct 0-indexed integer arrays nums1 and nums2,
+where nums1 is a subset of nums2.
+For each 0 <= i < nums1.length, find the index j such that nums1[i] == nums2[j]
+and determine the next greater element of nums2[j] in nums2. If there is no next
+greater element, then the answer for this query is -1. Return an array ans of
+length nums1.length such that ans[i] is the next greater element as described
+above.
+*/
+
+vector<int> nextGreaterElement(vector<int> &nums2, vector<int> &nums1) {
+  unordered_map<int, int> m;
+  stack<int> st;
+  for (int i = nums1.size() - 1; i >= 0; i--) {
+    while (!st.empty() && nums1[i] >= st.top()) {
+      st.pop();
+    }
+    if (st.empty()) {
+      m[nums1[i]] = -1;
+      st.push(nums1[i]);
+      continue;
+    }
+    m[nums1[i]] = st.top();
+    st.push(nums1[i]);
+  }
+  vector<int> ans;
+  for (int i = 0; i < nums2.size(); i++)
+    ans.push_back(m[nums2[i]]);
+  return ans;
+}
 
 int main() {}
