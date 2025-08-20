@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <climits> // for INT_MIN
 using namespace std;
 // Function to find the index of the largest element <= k
 int findFloor(vector<int> &arr, int k) { // lowerbound
@@ -335,7 +336,8 @@ int check(int mid, vector<int> &arr, int m) // m is unused
 int findPages(vector<int> &arr, int n, int m) {
   if (m > n)
     return -1;
-  int left = *max_element(arr.begin(), arr.end());
+  int left =  INT_MIN;
+  for(int i=0;i<arr.size();i++) left=max(left,arr[i]);
   int right = 0;
   for (int i = 0; i < arr.size(); i++)
     right += arr[i];

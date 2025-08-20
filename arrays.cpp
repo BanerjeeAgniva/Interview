@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <algorithm> // for reverse
+#include <climits> // for INT_MIN
 using namespace std;
 // Given an array nums, return true if the array was originally sorted in
 // non-decreasing order, then rotated some number of positions (including zero).
