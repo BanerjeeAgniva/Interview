@@ -26,6 +26,8 @@ int gcd(int n,int m){
     5
     */
 }
+// LCM(a,b) * GCD(a,b) = a*b
+//------------------------------------------------------------------------ 
 // You are given an array arr[] containing positive integers. The elements in the array arr[] range from 1 to n 
 // (where n is the size of the array), and some numbers may be repeated or absent. Your task is to count the frequency 
 // of all numbers in the range 1 to n and return an array of size n such that result[i] represents the frequency of 
@@ -79,7 +81,7 @@ int maxFrequency(vector<int>& nums, int k) {
     // ---------------------------------------------------------------------------------------
     // LOGIC --->  required = nums[right] * windowlen <= currsum + k   ----> This is ACCEPTED 
     // ---------------------------------------------------------------------------------------
-    sort(nums.begin(),nums.end());
+    // sort(nums.begin(),nums.end());
     int left=0,right=0;
     long long currsum=0;
     int ans=1;
@@ -96,6 +98,7 @@ int maxFrequency(vector<int>& nums, int k) {
 }
 int main()
 {
+    cout<< "hello" ;
     //cout<<sumdivisors(5)<<"\n";
     //cout<<gcd(20,15)<<"\n";
     // vector<int> arr={2,3,3,2,5}; // expected output --> {0,2,2,0,1}
