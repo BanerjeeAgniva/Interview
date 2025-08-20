@@ -4,6 +4,8 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <algorithm> // for reversing string 
+#include <unordered_map>
 using namespace std;
 /*
 stack using array
