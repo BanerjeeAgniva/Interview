@@ -287,4 +287,42 @@ Time Complexity = O((log n)^2)
 
 //------------------------------------------------------------//
 
+    int height(TreeNode* root)
+    {
+        if(root==NULL) return 0;
+        return 1+max(height(root->left),height(root->right));
+    }
+    int diameterOfBinaryTree(TreeNode* root) {
+        if(root==NULL) return 0;
+        return max(height(root->left)+height(root->right),
+               max(diameterOfBinaryTree(root->left),
+                   diameterOfBinaryTree(root->right)));
+    }
+    // O(n^2)
+    //-------------------------
+    /*
+Idea :  more efficient strategy is to calculate these heights in a bottom-up fashion using a Postorder traversal. This technique enables the validation of balance conditions and the computation of the diameter simultaneously during the traversal.    
+    */
+    int heightOptimized(TreeNode* root, int& diameter)
+    {                                   //passed as reference 
+        if(root==NULL) return 0;
+        int leftsubtreeheight=heightOptimized(root->left,diameter);
+        int rightsubtreeheight=heightOptimized(root->right,diameter);
+        //update diameter at each node while calculating height
+        diameter=max(diameter,leftsubtreeheight+rightsubtreeheight);
+        // return height
+        return 1+max(leftsubtreeheight,rightsubtreeheight);
+    }
+    int diameterOfBinaryTreeOptimized(TreeNode* root) {
+        int diameter=0;
+        heightOptimized(root,diameter);
+        return diameter;
+    }
+    /*
+Time Complexity
+O(n) The height function visits each node exactly once in a post-order traversal. Therefore, the time complexity is proportional to the number of nodes, n.
+Space Complexity
+O(h) In the worst case (a skewed tree), the recursion stack can go as deep as the height of the tree, h. In a balanced tree, h is log n. Thus, the space complexity is O(h).
+    */
+// ----------------------------------------------------------------
 

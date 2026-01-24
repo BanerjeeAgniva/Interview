@@ -1,0 +1,1 @@
+![alt text](images\diameter_optimized.png)
