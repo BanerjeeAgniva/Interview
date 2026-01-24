@@ -1,10 +1,9 @@
 #include <iostream>
+#include <vector>
+#include "../../include/linked_list_node.h"
+#include "../../include/doubly_linked_list_node.h"
+#include "../../include/flatten_node.h"
 using namespace std;
-//-------------------------------
-struct node {
-  int val;
-  struct node *next = NULL;
-};
 //-------------------------------
 struct node *newnode(int x) {
   struct node *makenode = new struct node;
@@ -23,11 +22,6 @@ struct node *ConstructLL(vector<int> &arr) {
 //----------------------------------------------------
 // DOUBLE LINKEDLIST //
 //----------------------------------------------------
-struct dnode {
-  int val;
-  struct dnode *next = NULL;
-  struct dnode *prev = NULL;
-};
 struct dnode *newdnode(int x) {
   struct dnode *makednode = new struct dnode;
   makednode->val = x;
@@ -391,17 +385,6 @@ struct Node{
 };
 */
 //----Flatten LL----//
-struct Node {
-  int data;
-  struct Node *next;
-  struct Node *bottom;
-
-  Node(int x) {
-    data = x;
-    next = NULL;
-    bottom = NULL;
-  }
-};
 Node *merge(Node *a, Node *b) {
   Node *res = new Node(-1);
   Node *temp = res;
