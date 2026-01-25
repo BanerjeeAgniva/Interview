@@ -3,6 +3,7 @@
 #include <queue>
 #include <stack>
 #include "../../include/tree_node.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -95,6 +96,23 @@ void postorder(Node* root, vector<int>& arr) {
     postorder(root->right, arr);
     arr.push_back(root->data);
 }
+
+		vector<int> postorderIterative(TreeNode* root){
+			vector<int> ans;
+			if(root==NULL) return ans;
+	        stack<TreeNode*> st;
+			st.push(root);
+			while(!st.empty())
+			{
+				TreeNode* top=st.top();
+				st.pop();
+				ans.push_back(top->data);
+				if(top->left) st.push(top->left);
+				if(top->right) st.push(top->right);
+			}
+			reverse(ans.begin(),ans.end()); // ****IMP****
+			return ans;
+		}
 
 vector<int> postOrder(Node* root) {
     vector<int> arr;
