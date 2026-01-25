@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <stack>
 #include "../../include/tree_node.h"
 
 using namespace std;
@@ -64,6 +65,25 @@ void inorder(Node* root, vector<int>& arr) {
 vector<int> inOrder(Node* root) {
     vector<int> arr;
     inorder(root, arr);
+    return arr;
+}
+
+vector<int> inorderIterative(Node* root) {
+    vector<int> arr;
+    stack<Node*> s;
+    Node* curr = root;
+    while (true) {
+        if (curr != nullptr) {
+            s.push(curr);
+            curr = curr->left;
+        } else {
+            if (s.empty()) break;
+            curr = s.top();
+            s.pop();
+            arr.push_back(curr->data);
+            curr = curr->right;
+        }
+    }
     return arr;
 }
 
