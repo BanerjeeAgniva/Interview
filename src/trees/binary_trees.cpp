@@ -38,7 +38,7 @@ int main()
     return 0;
 }
 
-// Function definitions
+// ----- preorder traversal -----
 void preorder(Node* root, vector<int>& arr) {
     if (root == nullptr) {
         return;
@@ -54,6 +54,24 @@ vector<int> preOrder(Node* root) {
     return arr;
 }
 
+		vector<int> preorderIterative (TreeNode* root){
+		   vector<int> ans;
+		   if(!root) return ans;	
+	       stack<TreeNode*> st;
+		   st.push(root);
+		   while(!st.empty())
+		   {
+			TreeNode* node=st.top();
+			st.pop();
+            ans.push_back(node->data);
+			if(node->right) st.push(node->right);
+			if(node->left) st.push(node->left);
+		   }
+		   return ans;
+		}
+
+        // ------------------------------------------------
+// ----- inorder traversal -----
 void inorder(Node* root, vector<int>& arr) {
     if (root == nullptr) {
         return;
@@ -88,6 +106,9 @@ vector<int> inorderIterative(Node* root) {
     return arr;
 }
 
+//-------------------------------
+// ----- postorder traversal -----
+
 void postorder(Node* root, vector<int>& arr) {
     if (root == NULL) {
         return;
@@ -120,6 +141,9 @@ vector<int> postOrder(Node* root) {
     return arr;
 }
 
+//-------------------------------
+// ----- level order traversal -----
+
 vector<vector<int>> levelOrder(Node* root) {
     vector<vector<int>> ans;
     if (root == nullptr) {
@@ -144,7 +168,7 @@ vector<vector<int>> levelOrder(Node* root) {
     }
     return ans;
 }
-
+//-------------------------------
 int maxDepth(Node* root) {
     if (root == NULL) {
         return 0;
